@@ -2,6 +2,7 @@ class FlightDetails(object):
     def __init__(self):
         self.__passenger_info = []
 
+
     def assign_flight_number(self, flight_number):
         self.__flight_number = flight_number
 
@@ -18,11 +19,8 @@ class FlightDetails(object):
         return self.__flight_number
 
     def __str__(self):
-        details = "Flight Details:\nNumber of passengers = " + str(len(self.__passenger_info)) + "\n\n"
-        "Flight number = " + str(self.__flight_number)
-        "Host Details = " + self.__host.__str__() + "\n\n"
-        "Pilot Details = " + self.__pilot.__str__() + "\n\n"
-        "Passengers Information:\n\n"
-
+        details = "Flight Details:\nNumber of passengers = " + str(len(self.__passenger_info)) + "\nFlight number = " + str(self.__flight_number) + "\n\nHost Details:\n" + self.__host.__str__() + "\n\nPilot Details:\n" + self.__pilot.__str__() + "\n\nPassengers Information:\n\n"
         for passenger in self.__passenger_info:
-            details.join(passenger.__str__())
+            details += passenger.__str__() + '\n\n'
+
+        return details
