@@ -5,6 +5,8 @@ from airlineReservationAndBooking.Passenger import Passenger
 from airlineReservationAndBooking.reservation import Reservation
 from airlineReservationAndBooking.SeatClass import SeatClass
 from airlineReservationAndBooking.flightbooking import FlightBooking
+from airlineReservationAndBooking.payment import Payment
+from airlineReservationAndBooking.payment_type import PaymentType
 
 
 class MyTestCase(unittest.TestCase):
@@ -15,6 +17,7 @@ class MyTestCase(unittest.TestCase):
         self.reservation = Reservation()
         self.passenger = Passenger("Olu Jola", "0000", "bina@jolo.com")
         self.flight_booking = FlightBooking()
+        self.payment = Payment()
 
     def tearDown(self) -> None:
         self.reservation.empty_reservation_list()
@@ -107,12 +110,14 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual("FIRSTCLASS", FlightBooking.get_booked_seat_type(self.passenger))
 
     def test_that_passenger_can_book_economy_class_with_reservation_id(self):
-            self.reservation.reserve_flight(self.passenger, SeatClass.economy)
-            self.assertEqual(1, self.reservation.get_total_number_reserved_seats())
-            reservation_id = self.reservation.get_reservation_ID(self.passenger)
-            self.flight_booking.book_with_reservation_id(reservation_id)
-            self.assertEqual(1, self.flight_booking.get_total_count_of_seats_booked())
-            self.assertEqual("ECONOMY", FlightBooking.get_booked_seat_type(self.passenger))
+        self.reservation.reserve_flight(self.passenger, SeatClass.economy)
+        self.passenger1 = Passenger("Ade Bajomo", "23543", "dbomo@gmail.com")
+        self.reservation.reserve_flight(self.passenger1, SeatClass.first_class)
+        self.assertEqual(2, self.reservation.get_total_number_reserved_seats())
+        reservation_id = self.reservation.get_reservation_ID(self.passenger)
+        self.flight_booking.book_with_reservation_id(reservation_id)
+        self.assertEqual(1, self.flight_booking.get_total_count_of_seats_booked())
+        self.assertEqual("ECONOMY", FlightBooking.get_booked_seat_type(self.passenger))
 
     def test_that_passenger_can_book_business_class_with_reservation_id(self):
         self.reservation.reserve_flight(self.passenger, SeatClass.business)
@@ -177,4 +182,26 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(10, self.flight_booking.get_total_number_of_first_class_seats_booked())
         self.assertEqual(10, self.flight_booking.get_total_count_of_seats_booked())
 
+    def test_that_airline_can_set_the_price_of_first_class_booking_pass(self):
+        self.airline.set_price_of_first_class(1000)
+        self.assertEqual(1000, self.airline.get_price_of_first_class_seat())
 
+    def test_that_airline_can_set_the_price_of_business_class_booking_pass(self):
+        self.airline.set_price_of_business_class(700)
+        self.assertEqual(700, self.airline.get_price_of_business_class_seat())
+
+    def test_that_airline_can_set_the_price_of_economy_class_booking_pass(self):
+        self.airline.set_price_of_business_class(500)
+        self.assertEqual(500, self.airline.get_price_of_business_class_seat())
+
+    def test_that_passenger_can_make_payment_for_first_class_booking_pass(self):
+        self.flight_booking.book_flight(self.passenger, SeatClass.first_class)
+        self.assertEqual(1, self.flight_booking.get_total_number_of_first_class_seats_booked())
+        self.assertEqual(SeatClass.first_class, FlightBooking.get_passenger_booked_seat_type(self.passenger))
+        self.airline.set_price_of_first_class(1000)
+        self.assertEqual(1000, self.airline.get_price_of_first_class_seat())
+
+        self.payment.make_payment(self.passenger, 1000, SeatClass.first_class, PaymentType.master_card)
+
+        self.assertTrue(self.passenger.has_paid())
+        self.assertEqual(PaymentType.master_card, self.passenger.get_payment_type())

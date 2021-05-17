@@ -6,21 +6,23 @@ class FlightBooking(object):
 
     def book_with_reservation_id(self, reservation_id):
         reserved_passenger = Reservation.get_passenger(reservation_id)
-        if reserved_passenger.get_seat_class == "FIRSTCLASS":
+        print(reserved_passenger.get_seat_class(), "reserved_passenger")
+        print(len(Reservation.get_reserved_passengers()))
+        if reserved_passenger.get_seat_class() == "FIRSTCLASS":
             seat_count = self.get_total_number_of_first_class_seats_booked()
             if seat_count < 10 and not self.__passenger_has_booked(reserved_passenger):
                 self.booked_seats.append(reserved_passenger)
             else:
                 return "No available first class seats"
 
-        elif reserved_passenger.get_seat_class == "BUSINESS":
+        elif reserved_passenger.get_seat_class() == "BUSINESS":
             seat_count = self.get_total_number_of_business_class_seats_booked()
             if seat_count < 20 and not self.__passenger_has_booked(reserved_passenger):
                 self.booked_seats.append(reserved_passenger)
             else:
                 return "No available Business class seats"
 
-        elif reserved_passenger.get_seat_class == "ECONOMY":
+        elif reserved_passenger.get_seat_class() == "ECONOMY":
             seat_count = self.get_total_number_of_economy_class_seats_booked()
             if seat_count < 20 and not self.__passenger_has_booked(reserved_passenger):
                 self.booked_seats.append(reserved_passenger)
@@ -95,3 +97,10 @@ class FlightBooking(object):
 
     def empty_booked_list(self):
         self.booked_seats.clear()
+
+    @classmethod
+    def get_passenger_booked_seat_type(cls, passenger):
+        for booked_passenger in cls.booked_seats:
+            if booked_passenger == passenger:
+                return booked_passenger.get_seat_class()
+
