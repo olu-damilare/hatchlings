@@ -1,23 +1,28 @@
 import mysql.connector
+import stdiomask
 from mysql.connector import Error
 
 
 def connect_insert():
     conn = None
+    user_host = input('Input the name of the host server: ')
+    user_database = input("What database do you want to work with? ")
+    username = input('Enter your username: ')
+    user_password = stdiomask.getpass(prompt ='Enter your password: ', mask = '*')
 
     try: 
-        conn = mysql.connector.connect(host = 'localhost', database = 'movie_review', user = input('Enter your username: '), password = input('Enter your password: '))
+        conn = mysql.connector.connect(host = user_host, database = user_database, user = username, password = user_password)
 
         if conn.is_connected:
-            print('Connected to the database server')
+            print('\nConnected to the database server')
             
             list_vals = []
             cursor = conn.cursor(dictionary = True)
-            user_selection = int(input("Press 1 to insert into movie table \nPress 2 to update movie table \nPress 3 to delete row from movie table\n"))
+            table = input("What table in the {} database do you want to work with? ".format(user_database))
+            user_selection = int(input("Press 1 to insert into {} table \nPress 2 to update {} table \nPress 3 to delete row from {} table\n\n".format(table, table, table)))
 
             if user_selection == 1:
                 row_num = int(input('How many rows do you want to insert? '))           
-                sql_query = "Insert into movies(title, release_year, genre, collection_in_mil) Values (%s, %s, %s, %s);"  
                 for i in range(row_num):
                     print('\nRow', i+1)
                     title = input("Enter the title of the movie: ")
@@ -29,24 +34,23 @@ def connect_insert():
                     list_vals.append(val)
                     print()
 
+                sql_query = "Insert into {} (title, release_year, genre, collection_in_mil) Values (%s, %s, %s, %s);".format(table)  
                 cursor.executemany(sql_query, list_vals)
                 conn.commit()
                 print(cursor.rowcount, ' row was inserted')
                 
             elif user_selection == 2:
                 number_of_columns = int(input("How many fields do you want to update? "))
-                list = []
                 for i in range(number_of_columns):
                     column_name = input("Enter column name: ")
                     new_value = input("Enter the new value: ")
                     sql_query = "Update movies set " + column_name + " = " + "\'" + new_value + "\' where id = " + str(id)
                     cursor.execute(sql_query)
                     conn.commit() 
-                print(cursor.rowcount, "fields successfully updated in movies table")  
+                    print("field successfully updated in movies table")  
 
-            if user_selection == 3:
+            elif user_selection == 3:
                 number_of_rows = int(input("How many rows do you want to delete? "))
-                list = []
                 for i in range(number_of_rows):
                     value = input("Enter the key value of the row(s) to be deleted: ")
                     column_name = input("Enter column name where the column exists: ")
